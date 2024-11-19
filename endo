@@ -1,0 +1,195 @@
+#ifndef ENDO_H
+#define ENDO_H
+
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <array>
+#include <vector>
+
+namespace endo
+{
+    template <typename blank1, typename blank2>
+    struct pair
+    {
+        blank1 val1;
+        blank2 val2;
+
+        friend std::ostream& operator<<(std::ostream& os, const pair& p)
+        {
+            os << "{" << p.val1 <<  ", " << p.val2 << "}";
+            return os;
+        }
+    };
+
+    struct point
+    {
+        double x;
+        double y;
+
+        point operator+(const point other) const
+        {
+            return point{x+other.x, y+other.y};
+        }
+
+        point operator-(const point other) const
+        {
+            return point{x-other.x, y-other.y};
+        }
+
+        double operator*(const point other) const
+        {
+            return x*other.x + y*other.y;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const point& a)
+        {
+            os << "(" << a.x << ", " << a.y << ")";
+            return os;
+        }
+
+        double magnitude(const point origin = {0, 0}) const
+        {
+            return sqrt((x - origin.x) * (x - origin.x) + (y - origin.y) * (y - origin.y));
+        }
+
+        point normalize() const
+        {
+            double mag = magnitude();
+            return point{x / mag, y / mag};
+        }
+
+        point scale(int scalar) const
+        {
+            return point{x*scalar, y*scalar};
+        }
+    };
+
+    struct quadratic
+    {
+        double a;
+        double b;
+        double c;
+
+        double calculate(double n) const
+        {
+            return a*n*n + b*n + c;
+        }
+
+        double derivative(double n) const
+        {
+            return 2*a*n + b;
+        }
+
+        pair<double, double> roots() const
+        {
+            double x1 = (-b-sqrt(b*b-4*a*c))/(2*a);
+            double x2 = (-b+sqrt(b*b-4*a*c))/(2*a);
+            return pair<double, double>{x1, x2};
+        }
+
+        point extremum() const
+        {
+            double x = -b/(2*a);
+            return point{x, calculate(x)};
+        }
+
+        quadratic operator+(quadratic g)
+        {
+            return quadratic{a+g.a, b+g.b, c+g.c};
+        }
+    };
+
+    std::vector<std::vector<double>> matrix_multiply(const std::vector<std::vector<double>>& A, const std::vector<std::vector<double>>& B)
+    {
+        std::vector<std::vector<double>> C = {{0.0, 0.0},{0.0, 0.0}};
+
+        C[0][0] = A[0][0] * B[0][0] + A[0][1] * B[1][0];
+        C[0][1] = A[0][0] * B[0][1] + A[0][1] * B[1][1];
+        C[1][0] = A[1][0] * B[0][0] + A[1][1] * B[1][0];
+        C[1][1] = A[1][0] * B[0][1] + A[1][1] * B[1][1];
+
+        return C;
+    }
+
+    void matrix_output(const std::vector<std::vector<double>>& input)
+    {
+        for (int i = 0; i != input.size(); i++)
+        {
+            std::cout << "|";
+            for (int j = 0; j != input[i].size(); j++)
+            {
+                if (j == input[i].size()-1)
+                {
+                    std::cout << input[i][j] << "|";
+                }
+                else
+                {
+                    std::cout << input[i][j] << ", ";
+                }
+            }
+            std::cout << "\n";
+        }
+    }
+
+    template <typename blank>
+    void format(std::vector<blank> input)
+    {
+        std::cout << "{";
+        for (int i = 0; i != input.size(); i++)
+        {
+            if (i == input.size() - 1)
+            {
+                std::cout << input[i] << "}";
+                return;
+            }
+            std::cout << input[i] << ", ";
+        }
+    }
+
+    template <typename blank>
+    blank input(std::string prompt)
+    {
+        blank output;
+        std::cout << prompt;
+        if (std::cin >> output)
+        {
+            return output;
+        }
+        std::cin.clear();
+        std::cin.ignore(256, '\n');
+    }
+
+    std::vector<int> factorize(int n)
+    {
+        std::vector<int> factors;
+        int divisor = 2;
+        while (n != 1)
+        {
+            if (n % divisor == 0)
+            {
+                n /= divisor;
+                factors.emplace_back(divisor);
+            }
+            divisor++;
+        }
+        return factors;
+    }
+
+    pair<int, int> simplify(int a, int b)
+    {
+        int divisor = 2;
+        while (a != 1 && b != 1)
+        {
+            while (a % divisor == 0 && b % divisor == 0)
+            {
+                a /= divisor;
+                b /= divisor;
+            }
+            divisor++;
+        }
+        return pair<int, int>{a, b};
+    } 
+}
+
+#endif
