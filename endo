@@ -9,11 +9,11 @@
 
 namespace endo
 {
-    template <typename blank1, typename blank2>
+    template <typename _t1, typename _t2>
     struct pair
     {
-        blank1 val1;
-        blank2 val2;
+        _t1 val1;
+        _t2 val2;
 
         friend std::ostream& operator<<(std::ostream& os, const pair& p)
         {
@@ -132,8 +132,8 @@ namespace endo
         }
     }
 
-    template <typename blank>
-    void format(std::vector<blank> input)
+    template <typename _t>
+    void format(std::vector<_t> input)
     {
         std::cout << "{";
         for (int i = 0; i != input.size(); i++)
@@ -147,10 +147,10 @@ namespace endo
         }
     }
 
-    template <typename blank>
+    template <typename _t>
     blank input(std::string prompt)
     {
-        blank output;
+        _t output;
         std::cout << prompt;
         if (std::cin >> output)
         {
